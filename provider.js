@@ -1,13 +1,50 @@
+// SPDX-License-Identifier: MIT
+
 async function scheduleHtmlProvider() {
   await loadTool('AIScheduleTools')
   try {
+    const year = await AISchedulePrompt({
+      titleText: '学年',
+      tipText: '请输入本学年开始的年份',
+      defaultText: '2024',
+      validator: value => {
+        try {
+          const v = parseInt(value)
+          if (v < 2000 || v > 2100) {
+            return '请输入正确的学年'
+          }
+          return false
+        } catch (error) {
+          return '请输入正确的学年'
+        }
+      }
+    })
+
+    const term = await AISchedulePrompt({
+      titleText: '学期',
+      tipText: '请输入本学期的学期(1,2,3 分别表示上、下、短学期)',
+      defaultText: '1',
+      validator: value => {
+        if (value === '1' || value === '2' || value === '3') {
+          return false
+        }
+        return '请输入正确的学期'
+      }
+    })
+
+    const xqm = {
+      '1': '3',
+      '2': '12',
+      '3': '16',
+    }[term]
+
     const res = await fetch("https://webvpn.sxdtdx.edu.cn:8443/http/77726476706e69737468656265737421a1a70fcd7e622603305ade/jwglxt/kbcx/xskbcx_cxXsgrkb.html?vpn-12-o1-10.192.3.27&gnmkdm=N2151", {
       "headers": {
         "accept": "*/*",
         "content-type": "application/x-www-form-urlencoded;charset=UTF-8",
         "x-requested-with": "XMLHttpRequest"
       },
-      "body": "xnm=2024&xqm=3&kzlx=ck&xsdm=",
+      "body": `xnm=${year}&xqm=${xqm}&kzlx=ck&xsdm=`,
       "method": "POST",
       "mode": "cors",
       "credentials": "include"
